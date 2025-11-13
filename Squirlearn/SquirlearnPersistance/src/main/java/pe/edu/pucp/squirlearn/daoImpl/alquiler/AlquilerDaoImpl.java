@@ -4,6 +4,7 @@ import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import pe.edu.pucp.squirlearn.daoImpl.util.Columna;
 import pe.edu.pucp.squirlearn.dao.alquiler.AlquilerDao;
@@ -48,18 +49,14 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
         int personaId = safeFkId(_personaId, "personas", "PERSONA_ID");
         int itemId = safeFkId(_itemId, "items", "ITEM_ID");
 
-        java.sql.Timestamp fechaInicioSql = TraduccionesSQL.toSqlTimestamp(this.alquiler.getFechaInicio());
-        java.sql.Timestamp fechaFinSql = TraduccionesSQL.toSqlTimestamp(this.alquiler.getFechaFin());
-        java.sql.Timestamp fechaCreacionSql = TraduccionesSQL.toSqlTimestamp(this.alquiler.getFechaCreacion());
-
         this.statement.setInt(idx++, personaId);
         this.statement.setInt(idx++, itemId);
-        this.statement.setTimestamp(idx++, fechaInicioSql);
-        this.statement.setTimestamp(idx++, fechaFinSql);
+        this.statement.setString(idx++, this.alquiler.getFechaInicio());
+        this.statement.setString(idx++, this.alquiler.getFechaFin());
         this.statement.setInt(idx++, this.alquiler.getDevuelto() ? 1 : 0);
         this.statement.setDouble(idx++, this.alquiler.getMonto());
         this.statement.setString(idx++, this.alquiler.getUsuarioCreacion());
-        this.statement.setTimestamp(idx++, fechaCreacionSql);
+        this.statement.setString(idx++, this.alquiler.getFechaCreacion());
     }
 
     @Override
@@ -72,26 +69,16 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
 
         int personaId = safeFkId(providedPersonaId, "personas", "PERSONA_ID");
         int itemId = safeFkId(providedItemId, "items", "ITEM_ID");
-
-        // 1. Obtiene el java.util.Date (limpio) de tu DTO
-        java.util.Date fechaInicioUtil = this.alquiler.getFechaInicio();
-        java.util.Date fechaFinUtil = this.alquiler.getFechaFin();
-        java.util.Date fechaCreacionUtil = this.alquiler.getFechaCreacion();
-
-        // 2. Prepara el "traductor" (Timestamp) para JDBC
-        java.sql.Timestamp fechaInicioSql = (fechaInicioUtil == null) ? null : new java.sql.Timestamp(fechaInicioUtil.getTime());
-        java.sql.Timestamp fechaFinSql = (fechaFinUtil == null) ? null : new java.sql.Timestamp(fechaFinUtil.getTime());
-        java.sql.Timestamp fechaCreacionSql = (fechaCreacionUtil == null) ? null : new java.sql.Timestamp(fechaCreacionUtil.getTime());
-
+        
         // Orden EXACTO del UPDATE impreso por el DAO
         this.statement.setInt(i++, personaId);                                   // PERSONA_ID=?
-        this.statement.setInt(i++, itemId);                                      // ITEM_ID=?
-        this.statement.setTimestamp(i++, fechaInicioSql);             // FECHA_INICIO=?
-        this.statement.setTimestamp(i++, fechaFinSql);                // FECHA_FIN=?
-        this.statement.setTimestamp(i++, fechaCreacionSql);
+        this.statement.setInt(i++, itemId);
+        this.statement.setString(i++, this.alquiler.getFechaInicio());
+        this.statement.setString(i++, this.alquiler.getFechaFin());   
         this.statement.setInt(i++, this.alquiler.getDevuelto() ? 1 : 0);         // DEVUELTO=?
         this.statement.setDouble(i++, this.alquiler.getMonto());                 // MONTO=?
         this.statement.setString(i++, this.alquiler.getUsuarioCreacion());
+        this.statement.setString(i++, this.alquiler.getFechaCreacion());
         // WHERE ALQUILER_ID=?
         this.statement.setInt(i++, this.alquiler.getAlquilerId());
     }
@@ -116,12 +103,9 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
         this.alquiler.setPersona(per);
         this.alquiler.setItem(item);
         this.alquiler.setAlquilerId(this.resultSet.getInt("ALQUILER_ID"));
-//        this.alquiler.setFechaInicio(this.resultSet.getDate("FECHA_INICIO"));
-//        this.alquiler.setFechaFin(this.resultSet.getDate("FECHA_FIN"));
-//        this.alquiler.setFechaCreacion(this.resultSet.getDate("FECHA_CREACION"));
-        this.alquiler.setFechaInicio(this.resultSet.getTimestamp("FECHA_INICIO"));
-        this.alquiler.setFechaFin(this.resultSet.getTimestamp("FECHA_FIN"));
-        this.alquiler.setFechaCreacion(this.resultSet.getTimestamp("FECHA_CREACION"));
+        this.alquiler.setFechaInicio(this.resultSet.getString("FECHA_INICIO"));
+        this.alquiler.setFechaFin(this.resultSet.getString("FECHA_FIN"));
+        this.alquiler.setFechaCreacion(this.resultSet.getString("FECHA_CREACION"));
         this.alquiler.setDevuelto(this.resultSet.getInt("DEVUELTO") == 1);
         this.alquiler.setMonto(this.resultSet.getDouble("MONTO"));
         this.alquiler.setUsuarioCreacion(this.resultSet.getString("USUARIO_CREACION"));
@@ -133,7 +117,7 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
     }
 
     @Override
-    protected void agregarObjetoALaLista(java.util.List lista) throws SQLException {
+    protected void agregarObjetoALaLista(List lista) throws SQLException {
         this.instanciarObjetoDelResultSet();
         lista.add(this.alquiler);
     }
@@ -189,8 +173,8 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
                 //                /* _fin     */ Date.valueOf("2025-12-31")
 
                 /* _persona */1,
-                /* _inicio  */ java.sql.Date.valueOf("2025-01-01"),
-                /* _fin     */ java.sql.Date.valueOf("2025-12-31")
+                /* _inicio  */ ("2025-01-01"),
+                /* _fin     */ ("2025-12-31")
         );
         String sql = "{CALL REPORTE_ALQUILER(?, ?, ?)}";
         Boolean conTransaccion = true;
@@ -202,8 +186,8 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
         try {
             // 1) _persona (INT), 2) _inicio (DATE), 3) _fin (DATE)
             this.statement.setInt(1, p.getPersonaId());
-            this.statement.setDate(2, p.getInicio());
-            this.statement.setDate(3, p.getFin());
+            this.statement.setString(2, p.getInicio());
+            this.statement.setString(3, p.getFin());
         } catch (java.sql.SQLException e) {
             throw new RuntimeException(e);
         }

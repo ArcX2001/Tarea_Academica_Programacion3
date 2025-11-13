@@ -47,10 +47,10 @@ public class MensajeDaoImpl extends DAOImplBase implements MensajeDao{
             (this.mensaje.getPersona() == null ? null : this.mensaje.getPersona().getPersonaId()),
             "personas", "PERSONA_ID"
         );
-        java.sql.Timestamp fechaEnvSQL = TraduccionesSQL.toSqlTimestamp(this.mensaje.getFechaEnvio());
+        
         int i = 1;
         this.statement.setInt(i++, chatId);
-        this.statement.setTimestamp(i++, fechaEnvSQL);
+        this.statement.setString(i++, this.mensaje.getFechaEnvio());
         this.statement.setDate(i++, null);
         this.statement.setString(i++, this.mensaje.getMensaje());
         this.statement.setInt(i++, estadoMsjId);
@@ -72,18 +72,10 @@ public class MensajeDaoImpl extends DAOImplBase implements MensajeDao{
             "personas", "PERSONA_ID"
         );
         
-        // 1. Obtiene el java.util.Date (limpio) de tu DTO
-        java.util.Date FechaEnvio = this.mensaje.getFechaEnvio();
-        java.util.Date FechaLeido = this.mensaje.getFechaLeido();
-
-        // 2. Prepara el "traductor" (Timestamp) para JDBC
-        java.sql.Timestamp FechaEnvioSql = (FechaEnvio == null) ? null : new java.sql.Timestamp(FechaEnvio.getTime());
-        java.sql.Timestamp FechaLeidoSql = (FechaLeido == null) ? null : new java.sql.Timestamp(FechaLeido.getTime());
-        
         int i = 1;
         this.statement.setInt(i++, chatId);
-        this.statement.setTimestamp(i++, FechaEnvioSql);
-        this.statement.setTimestamp(i++, FechaLeidoSql);
+        this.statement.setString(i++, this.mensaje.getFechaEnvio());
+        this.statement.setString(i++, this.mensaje.getFechaLeido());
         this.statement.setString(i++, this.mensaje.getMensaje());
         this.statement.setInt(i++, estadoMsjId);
         this.statement.setInt(i++, personaId);
@@ -111,8 +103,8 @@ public class MensajeDaoImpl extends DAOImplBase implements MensajeDao{
 
         // Escalares
         this.mensaje.setMensajeId(this.resultSet.getInt("MENSAJE_ID"));
-        this.mensaje.setFechaEnvio(this.resultSet.getTimestamp("FECHA_ENVIO"));
-        this.mensaje.setFechaLeido(this.resultSet.getTimestamp("FECHA_LEIDO"));
+        this.mensaje.setFechaEnvio(this.resultSet.getString("FECHA_ENVIO"));
+        this.mensaje.setFechaLeido(this.resultSet.getString("FECHA_LEIDO"));
         this.mensaje.setMensaje(this.resultSet.getString("MENSAJE"));
     }
 

@@ -3,6 +3,7 @@ package pe.edu.pucp.squirlearn.daoImpl.chat;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import pe.edu.pucp.squirlearn.daoImpl.util.Columna;
 import pe.edu.pucp.squirlearn.dao.chat.EstadoChatDao;
 import pe.edu.pucp.squirlearn.daoImpl.DAOImplBase;
@@ -65,7 +66,7 @@ this.statement.setInt(i++, this.estadoChat.getEstadoChatId()); // WHERE
     }
 
     @Override
-    protected void agregarObjetoALaLista(java.util.List lista) throws SQLException {
+    protected void agregarObjetoALaLista(List lista) throws SQLException {
         this.instanciarObjetoDelResultSet();
         lista.add(this.estadoChat);
     }
