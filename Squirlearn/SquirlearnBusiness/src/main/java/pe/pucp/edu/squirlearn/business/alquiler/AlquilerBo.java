@@ -18,7 +18,7 @@ public class AlquilerBo {
     
    
     public Integer insertar(Integer personaId, Integer itemId, String inicio,
-            String fin , Double monto, String usuarioCreacion){
+            String fin , Double monto, String usuarioCreacion,String fechaCreacion){
         AlquilerDto alquilerDto = new AlquilerDto();
         
         PersonaDto persona = new PersonaDto();
@@ -28,17 +28,18 @@ public class AlquilerBo {
         
         alquilerDto.setPersona(persona);
         alquilerDto.setItem(item);
-        alquilerDto.setFechaFin(fin);
         alquilerDto.setFechaInicio(inicio);
+        alquilerDto.setFechaFin(fin);
         alquilerDto.setMonto(monto);
         alquilerDto.setUsuarioCreacion(usuarioCreacion);
+        alquilerDto.setFechaCreacion(fechaCreacion);
         alquilerDto.setDevuelto(Boolean.FALSE);
         
         return this.alquilerDao.insertar(alquilerDto);
     }
     
     public Integer Modificar(Integer id,Integer personaId, Integer itemId, String inicio,
-            String fin , Double monto, Boolean devuelto, String usuarioCreacion){
+            String fin , Double monto, Boolean devuelto){
         AlquilerDto alquilerDto = new AlquilerDto();
         
         
@@ -54,7 +55,6 @@ public class AlquilerBo {
         alquilerDto.setMonto(monto);
         alquilerDto.setAlquilerId(id);
         alquilerDto.setDevuelto(devuelto);
-        alquilerDto.setUsuarioCreacion(usuarioCreacion);
         
         return this.alquilerDao.modificar(alquilerDto);
     }
@@ -66,5 +66,9 @@ public class AlquilerBo {
     
     public AlquilerDto obtenerPorId(Integer id){
         return this.alquilerDao.obtenerPorId(id);
+    }
+    
+    public ArrayList<AlquilerDto> listarTodos() {
+        return (ArrayList<AlquilerDto>) this.alquilerDao.listarTodos();
     }
 }
