@@ -41,16 +41,8 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
     @Override
     protected void incluirValorDeParametrosParaInsercion() throws SQLException {
         int idx = 1;
-
-        // Resolver IDs de claves foráneas de forma segura desde la BD (mínimo ID disponible)
-        Integer _personaId = (this.alquiler.getPersona() == null) ? null : this.alquiler.getPersona().getPersonaId();
-        Integer _itemId = (this.alquiler.getItem() == null) ? null : this.alquiler.getItem().getItemId();
-
-        int personaId = safeFkId(_personaId, "personas", "PERSONA_ID");
-        int itemId = safeFkId(_itemId, "items", "ITEM_ID");
-
-        this.statement.setInt(idx++, personaId);
-        this.statement.setInt(idx++, itemId);
+        this.statement.setInt(idx++, this.alquiler.getPersona().getPersonaId());
+        this.statement.setInt(idx++, this.alquiler.getItem().getItemId());
         this.statement.setString(idx++, this.alquiler.getFechaInicio());
         this.statement.setString(idx++, this.alquiler.getFechaFin());
         this.statement.setInt(idx++, this.alquiler.getDevuelto() ? 1 : 0);
@@ -63,16 +55,9 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
     protected void incluirValorDeParametrosParaModificacion() throws SQLException {
         int i = 1;
 
-        // Permitir que Persona/Item vengan nulos desde el test y ponerles un ID válido
-        Integer providedPersonaId = (this.alquiler.getPersona() == null) ? null : this.alquiler.getPersona().getPersonaId();
-        Integer providedItemId = (this.alquiler.getItem() == null) ? null : this.alquiler.getItem().getItemId();
-
-        int personaId = safeFkId(providedPersonaId, "personas", "PERSONA_ID");
-        int itemId = safeFkId(providedItemId, "items", "ITEM_ID");
-        
         // Orden EXACTO del UPDATE impreso por el DAO
-        this.statement.setInt(i++, personaId);                                   // PERSONA_ID=?
-        this.statement.setInt(i++, itemId);
+        this.statement.setInt(i++, this.alquiler.getPersona().getPersonaId());                                   // PERSONA_ID=?
+        this.statement.setInt(i++, this.alquiler.getItem().getItemId());
         this.statement.setString(i++, this.alquiler.getFechaInicio());
         this.statement.setString(i++, this.alquiler.getFechaFin());   
         this.statement.setInt(i++, this.alquiler.getDevuelto() ? 1 : 0);         // DEVUELTO=?
@@ -95,20 +80,22 @@ public class AlquilerDaoImpl extends DAOImplBase implements AlquilerDao {
 
     @Override
     protected void instanciarObjetoDelResultSet() throws SQLException {
+        
         this.alquiler = new AlquilerDto();
         PersonaDto per = new PersonaDto();
         per.setPersonaId(this.resultSet.getInt("PERSONA_ID"));
         ItemDto item = new ItemDto();
         item.setItemId(this.resultSet.getInt("ITEM_ID"));
+        
+        this.alquiler.setAlquilerId(this.resultSet.getInt("ALQUILER_ID"));
         this.alquiler.setPersona(per);
         this.alquiler.setItem(item);
-        this.alquiler.setAlquilerId(this.resultSet.getInt("ALQUILER_ID"));
         this.alquiler.setFechaInicio(this.resultSet.getString("FECHA_INICIO"));
         this.alquiler.setFechaFin(this.resultSet.getString("FECHA_FIN"));
-        this.alquiler.setFechaCreacion(this.resultSet.getString("FECHA_CREACION"));
         this.alquiler.setDevuelto(this.resultSet.getInt("DEVUELTO") == 1);
         this.alquiler.setMonto(this.resultSet.getDouble("MONTO"));
         this.alquiler.setUsuarioCreacion(this.resultSet.getString("USUARIO_CREACION"));
+        this.alquiler.setFechaCreacion(this.resultSet.getString("FECHA_CREACION"));
     }
 
     @Override
